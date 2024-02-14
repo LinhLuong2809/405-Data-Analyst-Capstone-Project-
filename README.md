@@ -1,2 +1,2 @@
 # Data-analytics-training-per-scholas
-This repository to store all my progress for data analytics training with Per Scholas
+This repository is my data analyst capstone project for graduation with Per Scholas
