@@ -5,6 +5,7 @@ class Color:
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
     BLUE = '\033[94m'
+    CYAN = '\033[96m'
     END = '\033[0m'
     
 def display_customer_table(json_file_path):
@@ -368,16 +369,16 @@ def color_print(text, color):
 def display_menu():
     color_print("=====Welcome to the CDW SAPP Credit Card Transaction Management System!=====", Color.BLUE)
     color_print("What do you want to do? Please choose an option: ", Color.GREEN)
-    color_print("1. Display Customer Information.", Color.RED)
-    color_print("2. Display Branch Information.", Color.RED)
-    color_print("3. Display Credit Card and Transaction Information.", Color.RED)
-    color_print("4. Retrieve customer's transaction in specified zip code for a given month and year.", Color.RED)
-    color_print("5. Sort the transactions by day in descending order.", Color.RED)
-    color_print("6. Display number and total values of transactions for a given type.", Color.RED)
-    color_print("7. Display the total number and total values of transactions for branches in a given state.", Color.RED)
-    color_print("8. Check existing account details of a customer.", Color.RED)
-    color_print("9. Modify existing account details of a customer.", Color.RED)
-    color_print("10. Generate monthly bill.", Color.RED)
-    color_print("11. Display transactions between dates.", Color.RED)
+    color_print("1. Display Customer Information.", Color.CYAN)
+    color_print("2. Display Branch Information.", Color.CYAN)
+    color_print("3. Display Credit Card and Transaction Information.", Color.CYAN)
+    color_print("4. Retrieve customer's transaction in specified zip code for a given month and year.", Color.CYAN)
+    color_print("5. Sort the transactions by day in descending order.", Color.CYAN)
+    color_print("6. Display number and total values of transactions for a given type.", Color.CYAN)
+    color_print("7. Display the total number and total values of transactions for branches in a given state.", Color.CYAN)
+    color_print("8. Check existing account details of a customer.", Color.CYAN)
+    color_print("9. Modify existing account details of a customer.", Color.CYAN)
+    color_print("10. Generate monthly bill.", Color.CYAN)
+    color_print("11. Display transactions between dates.", Color.CYAN)
     color_print("12. Exit.", Color.YELLOW)
     color_print("==========================================================================", Color.BLUE)
