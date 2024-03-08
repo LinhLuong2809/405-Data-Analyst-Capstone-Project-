@@ -25,7 +25,8 @@ def create_database_in_mysql():
         
 def create_table_in_mysql():
     from pyspark.sql import SparkSession
-    from pyspark.sql.functions import initcap, lower,concat,lit,regexp_replace
+    from pyspark.sql.functions import initcap, lower,concat,lit,regexp_replace, col
+
     try:
     # Create a Spark session
         spark = SparkSession.builder.appName("CreateTableInMySQL").config("spark.jars", r"E:\soft\Spark\spark-3.5.0-bin-hadoop3\jars\mysql-connector-j-8.3.0.jar").getOrCreate()
@@ -33,16 +34,19 @@ def create_table_in_mysql():
         # Define the JDBC URL for the MySQL database
         jdbc_url = "jdbc:mysql://localhost:3306/creditcard_capstone"
 
-        df = spark.read.json(r"D:\CAP 405 Data Analytics - Capstone Project\cdw_sapp_custmer.json")
-        df2 = spark.read.json(r"D:\CAP 405 Data Analytics - Capstone Project\cdw_sapp_branch.json")
-        df3 = spark.read.json(r"D:\CAP 405 Data Analytics - Capstone Project\cdw_sapp_credit.json")
+        df = spark.read.json(r"D:\CAP 405 Data Analytics - Capstone Project\405 Capstone Python Application Development - Linh Luong\cdw_sapp_custmer.json")
+        df2 = spark.read.json(r"D:\CAP 405 Data Analytics - Capstone Project\405 Capstone Python Application Development - Linh Luong\cdw_sapp_branch.json")
+        df3 = spark.read.json(r"D:\CAP 405 Data Analytics - Capstone Project\405 Capstone Python Application Development - Linh Luong\cdw_sapp_credit.json")
         df = df.withColumn("CUST_PHONE", concat(lit("337"), df["CUST_PHONE"]))
         df = df.withColumn("CUST_PHONE", regexp_replace(df["CUST_PHONE"].cast("string"), "(\\d{3})(\\d{3})(\\d{4})", "($1)$2-$3")) \
                 .withColumn("FIRST_NAME", initcap("FIRST_NAME")) \
                 .withColumn("MIDDLE_NAME", lower("MIDDLE_NAME")) \
-                .withColumn("LAST_NAME", initcap("LAST_NAME"))        
+                .withColumn("LAST_NAME", initcap("LAST_NAME"))\
+                .withColumn("FULL_STREET_ADDRESS",concat(df["APT_NO"], lit(", "), df["STREET_NAME"]))\
+                .drop("APT_NO","STREET_NAME")
                 
         df2 = df2.withColumn("BRANCH_PHONE", regexp_replace(df2["BRANCH_PHONE"].cast("string"), "(\\d{3})(\\d{3})(\\d{4})", "($1)$2-$3"))
+        df2 = df2.withColumn("BRANCH_ZIP", col("BRANCH_ZIP").cast("string"))
 
         # Write the DataFrame to the MySQL table 
         df.write.format("jdbc") \
@@ -71,7 +75,6 @@ def create_table_in_mysql():
         .save()
         
         return True
-    
     except Exception as e:
         print(f"Error creating table: {e}")
         
@@ -128,26 +131,7 @@ def modify_tables():
 def modify_cust_detail(column, value, SSN):
     import mysql.connector
     import json
-    from pyspark.sql import SparkSession
-    from pyspark.sql.types import StructType, StructField, StringType, IntegerType
-    spark = SparkSession.builder.appName("Write_JSON_File").getOrCreate()
-    schema = StructType([
-    StructField("FIRST_NAME", StringType(), True),
-    StructField("MIDDLE_NAME", StringType(), True),
-    StructField("LAST_NAME", StringType(), True),
-    StructField("SSN", IntegerType(), True),
-    StructField("CREDIT_CARD_NO", StringType(), True),
-    StructField("APT_NO", StringType(), True),
-    StructField("STREET_NAME", StringType(), True),
-    StructField("CUST_CITY", StringType(), True),
-    StructField("CUST_STATE", StringType(), True),
-    StructField("CUST_COUNTRY", StringType(), True),
-    StructField("CUST_ZIP", StringType(), True),
-    StructField("CUST_PHONE", StringType(), True),
-    StructField("CUST_EMAIL", StringType(), True),
-    StructField("LAST_UPDATED", StringType(), True),
-    ])
-    
+  
     try:
         conn = mysql.connector.connect(
             host="localhost",
@@ -169,41 +153,11 @@ def modify_cust_detail(column, value, SSN):
         else:
             print("Invalid Customer SSN.")
         
-        query = f"""
-                SELECT 
-                FIRST_NAME,
-                MIDDLE_NAME, 
-                LAST_NAME, 
-                SSN, 
-                CREDIT_CARD_NO, 
-                APT_NO,
-                STREET_NAME, 
-                CUST_CITY, 
-                CUST_STATE, 
-                CUST_COUNTRY, 
-                CUST_ZIP, 
-                CUST_PHONE, 
-                CUST_EMAIL, 
-                LAST_UPDATED 
-                FROM cdw_sapp_customer"""
-                
-        cursor.execute(query)
-        result = cursor.fetchall()
-        
-        data = []
-        for row in result:
-            row_dict = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]]
-            data.append(row_dict)
-        df = spark.createDataFrame(data, schema=schema)
-        # Write the DataFrame to a JSON file
-        df.write.mode("overwrite").json(r"D:\CAP 405 Data Analytics - Capstone Project\cdw_sapp_custmer_copy.json")
-        
     except Exception as e:
         print(e)
     finally:
         cursor.close()
         conn.close()
-        spark.stop()
         
 def print_update(bool, name):
     if bool:

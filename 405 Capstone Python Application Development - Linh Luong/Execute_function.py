@@ -149,103 +149,36 @@ def prompt_user_choice():
             Display.color_print("Invalid input. Please enter a number.", Display.Color.RED)
         
 def check_cust_SSN(SSN):
-    import json
+# Create a Spark session
     try:
-        with open(r"D:\CAP 405 Data Analytics - Capstone Project\cdw_sapp_custmer.json") as f:
-            for line in f:
-                customer_data = json.loads(line)
-                if str(customer_data["SSN"])[-4:] == str(SSN):
-                    return True
+        df = Display.connect_table("cdw_sapp_customer")
+        ssn_exists = df.filter(df["SSN"].substr(-4,4) == SSN).count() > 0
+        if ssn_exists:
+            return True
+        else:
             return False
+        
     except Exception as e:
         print(e)
-    finally:
-        f.close()
         
 def check_credit_card(credit_card_no):
     import json
     try:
-        with open(r"D:\CAP 405 Data Analytics - Capstone Project\cdw_sapp_credit.json") as f:
-            for line in f:
-                credit_data = json.loads(line)
-                if str(credit_data["CREDIT_CARD_NO"]) == str(credit_card_no):
-                    return True
+        df = Display.connect_table("cdw_sapp_credit_card")
+        ssn_exists = df.filter(df["CREDIT_CARD_NO"] == credit_card_no).count() > 0
+        if ssn_exists:
+            return True
+        else:
             return False
     except Exception as e:
         print(e)
-    finally:
-        f.close()
         
-def write_cust_copy():
-    import mysql.connector
-    import json
-    from pyspark.sql import SparkSession
-    from pyspark.sql.types import StructType, StructField, StringType, IntegerType
-    spark = SparkSession.builder.appName("Write_JSON_File").getOrCreate()
-    schema = StructType([
-    StructField("FIRST_NAME", StringType(), True),
-    StructField("MIDDLE_NAME", StringType(), True),
-    StructField("LAST_NAME", StringType(), True),
-    StructField("SSN", IntegerType(), True),
-    StructField("CREDIT_CARD_NO", StringType(), True),
-    StructField("APT_NO", StringType(), True),
-    StructField("STREET_NAME", StringType(), True),
-    StructField("CUST_CITY", StringType(), True),
-    StructField("CUST_STATE", StringType(), True),
-    StructField("CUST_COUNTRY", StringType(), True),
-    StructField("CUST_ZIP", StringType(), True),
-    StructField("CUST_PHONE", StringType(), True),
-    StructField("CUST_EMAIL", StringType(), True),
-    StructField("LAST_UPDATED", StringType(), True),
-    ])
-    try:     
-        conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="password",
-            database="creditcard_capstone"
-        )
-          
-        query = f"""
-                SELECT 
-                FIRST_NAME,
-                MIDDLE_NAME, 
-                LAST_NAME, 
-                SSN, 
-                CREDIT_CARD_NO, 
-                APT_NO,
-                STREET_NAME, 
-                CUST_CITY, 
-                CUST_STATE, 
-                CUST_COUNTRY, 
-                CUST_ZIP, 
-                CUST_PHONE, 
-                CUST_EMAIL, 
-                LAST_UPDATED 
-                FROM cdw_sapp_customer"""
-                
-        cursor = conn.cursor()        
-        cursor.execute(query)
-        result = cursor.fetchall()
-        
-        data = []
-        for row in result:
-            row_dict = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]]
-            data.append(row_dict)
-        df = spark.createDataFrame(data, schema=schema)
-        # Write the DataFrame to a JSON file
-        df.write.mode("overwrite").json(r"D:\CAP 405 Data Analytics - Capstone Project\cdw_sapp_custmer_copy.json")
-        
-    except Exception as e:
-        print(e)
-    finally:
-        spark.stop()
         
 def execute_option(option):
     import sys
     if option == 1:
         Display.color_print("1. Display Customer Information.", Display.Color.RED)
-        Display.display_customer_table(r"D:\CAP 405 Data Analytics - Capstone Project\cdw_sapp_custmer.json")
+        Display.display_customer_table()
     
     elif option == 2:
         Display.color_print("2. Display Branch Information.", Display.Color.RED)
@@ -277,15 +210,12 @@ def execute_option(option):
         
     elif option == 9:
         Display.color_print("9. Modify existing account details of a customer.", Display.Color.RED)
-        Display.color_print("Generate a copy of the customer table.", Display.Color.BLUE)
-        write_cust_copy()
-        Display.color_print("copy customer table successfully.", Display.Color.RED)
         SSN = prompt_user_SSN()
         if check_cust_SSN(SSN):
-            Display.display_cust_Info(SSN, r"D:\CAP 405 Data Analytics - Capstone Project\cdw_sapp_custmer_copy.json")
+            Display.display_cust_Info(SSN)
             Generate.modify_cust_detail(prompt_user_column(), prompt_user_value(), SSN)
             Display.color_print("Customer details modified successfully.", Display.Color.YELLOW)
-            Display.display_cust_Info(SSN,r"D:\CAP 405 Data Analytics - Capstone Project\cdw_sapp_custmer_copy.json")
+            Display.display_cust_Info(SSN)
         else:
             Display.color_print("Customer not found.", Display.Color.RED)
         
