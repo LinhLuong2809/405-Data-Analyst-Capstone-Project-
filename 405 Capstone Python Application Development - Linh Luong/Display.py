@@ -92,7 +92,7 @@ def display_credit_table():
                 .load()
     try: 
     # Show the DataFrame
-        df.select("TRANSACTION_ID","CREDIT_CARD_NO","CUST_SSN","BRANCH_CODE","DAY","MONTH","YEAR","TRANSACTION_TYPE","TRANSACTION_VALUE").show(df.count(),truncate=False)
+        df.select("TRANSACTION_ID","CREDIT_CARD_NO","CUST_SSN","BRANCH_CODE","DAY","MONTH","YEAR","TRANSACTION_TYPE","TRANSACTION_VALUE").show(30,truncate=False)
     except Exception as e: 
         print(e)
     # Stop the SparkSession
@@ -146,7 +146,7 @@ def sort_transaction_by_day():
 
    
     # Show the DataFrame
-        df.select("TRANSACTION_ID","DAY","MONTH","YEAR","CREDIT_CARD_NO","CUST_SSN","BRANCH_CODE","TRANSACTION_TYPE","TRANSACTION_VALUE").orderBy("DAY", ascending=False).show(df.count(),truncate=False)
+        df.select("TRANSACTION_ID","DAY","MONTH","YEAR","CREDIT_CARD_NO","CUST_SSN","BRANCH_CODE","TRANSACTION_TYPE","TRANSACTION_VALUE").orderBy("DAY", ascending=False).show(300,truncate=False)
     except Exception as e: 
         print(e)
     finally:

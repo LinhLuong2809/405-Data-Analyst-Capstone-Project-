@@ -114,7 +114,7 @@ def prompt_user_credit_card():
         
 def prompt_user_column():
     try:
-        col = ["FIRST_NAME", "MIDDLE_NAME", "LAST_NAME", "CREDIT_CARD_NO", "CUST_CITY", "CUST_STATE", "CUST_COUNTRY", "CUST_ZIP", "CUST_PHONE", "CUST_EMAIL", "APT NO", "STREET_NAME", "SSN"]
+        col = ["FIRST_NAME", "MIDDLE_NAME", "LAST_NAME", "CREDIT_CARD_NO", "CUST_CITY", "CUST_STATE", "CUST_COUNTRY", "CUST_ZIP", "CUST_PHONE", "CUST_EMAIL", "FULL_STREET_ADDRESS", "SSN"]
         Display.color_print("Columns list: ", Display.Color.GREEN)
         print(col)
         while True:
